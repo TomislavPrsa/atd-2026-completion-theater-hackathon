@@ -4,7 +4,7 @@ Completion Theater Hackathon: Build It, Prove It, Smash It
 
 Wednesday 18 November 2026, 20:15–23:15, Room E2+E3, Potsdam local time (CET).
 
-Facilitators: Dragan Spiridonov and Lalitkumar Bhamare. The responsibilities below are a proposed division to agree together. Rewards are OPEN; no product, subscription, value or sponsor commitment is included.
+Facilitator: Dragan Spiridonov. Rewards are OPEN; no product, subscription, value or sponsor commitment is included.
 
 ## Purpose
 
@@ -17,27 +17,27 @@ Use rules/rubric version 1.1 consistently. The frozen source is the judged objec
 | Time (CET) | Minutes | Activity | Lead / output |
 | --- | --- | --- | --- |
 | 20:15–20:30 | 15 | Opening: empty-tests example, five patterns, verification reflex, rules | Dragan; common vocabulary |
-| 20:30–20:40 | 10 | Teams, PRD, roles and published scoring rubric | Lalit; one bounded plan per team |
-| 20:40–21:40 | 60 | Build with chosen AI tools | Both circulate; a runnable vertical slice |
-| 21:40–22:00 | 20 | Self-verification, repairs until 21:55, source freeze and evidence packaging | Dragan on evidence, Lalit on flow |
-| 22:00–22:05 | 5 | Short break and artifact handoff | Lalit assigns audit ring |
-| 22:05–22:40 | 35 | Independent cross-audit | Both; two strongest investigations per team |
-| 22:40–23:00 | 20 | Short demos, findings and contested-result checks | Dragan hosts, Lalit records provisional scores |
-| 23:00–23:10 | 10 | Finish arithmetic and discuss lessons | Both; confirmed scoreboard |
-| 23:10–23:15 | 5 | Close and personal takeaway | Both; one practice to take back |
+| 20:30–20:40 | 10 | Teams, PRD, roles and published scoring rubric | Dragan; one bounded plan per team |
+| 20:40–21:40 | 60 | Build with chosen AI tools | Dragan circulates; a runnable vertical slice |
+| 21:40–22:00 | 20 | Self-verification, repairs until 21:55, source freeze and evidence packaging | Dragan on evidence and flow |
+| 22:00–22:05 | 5 | Short break and artifact handoff | Dragan assigns audit ring |
+| 22:05–22:40 | 35 | Independent cross-audit | Dragan circulates; two strongest investigations per team |
+| 22:40–23:00 | 20 | Short demos, findings and contested-result checks | Dragan hosts and records provisional scores |
+| 23:00–23:10 | 10 | Finish arithmetic and discuss lessons | Dragan; confirmed scoreboard |
+| 23:10–23:15 | 5 | Close and personal takeaway | Dragan; one practice to take back |
 
 Total: 180 minutes. The build remains the advertised 60 minutes. No extra four-hour agenda is implied. Show the current phase and next deadline on the projector. Announce five-minute and one-minute warnings.
 
 ## Before the day
 
-- Agree roles with Lalit and check the live session slot and room with organizers.
+- Check the live session slot and room with organizers.
 - Plan for 3–8 teams, normally 4–6 people each. This is a planning range, not a registration count. At 49–50 attendees, use eight teams with two groups of seven if needed and redistribute roles. Do not promise unlimited facilitation capacity.
 - Ask participants to arrive with a laptop, charger, working coding agent, available model access/credits, Git, one GitHub account per team, and one local runtime they know. Test each team's fork and ability to open an upstream PR before the build; keep an archive tool available for offline fallback. They can use a local model. No specific subscription is required.
 - Bring the deck as PPTX and PDF, participant PDFs, editable Markdown templates, a timer, USB/offline transfer media, paper and pens. Avoid relying on a single download link.
 - Arrange power, projector/HDMI adapter, room Wi-Fi and a local transfer method. Check whether venue networking prevents peer transfer.
 - Print one PRD and pattern card per team, one builder and audit checklist per team, one scoring sheet per team, and one master scoreboard for facilitators.
 - Rehearse artifact transfer, source identity, cold start and a restart readback with a small local fixture before the event. An AI-assisted build and independent AI review have been executed on macOS; the public dry-run report gives scope and receipts. A mixed human-team and venue rehearsal still has not run.
-- Calibrate the rubric together: score a complete example, an honest broken app and a convincing agent summary with no executable receipts. The third example cannot receive functional points.
+- Calibrate the rubric before the event: score a complete example, an honest broken app and a convincing agent summary with no executable receipts. The third example cannot receive functional points.
 
 ## Team roles and setup
 

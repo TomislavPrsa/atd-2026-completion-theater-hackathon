@@ -1,6 +1,6 @@
 ---
 name: score-hackathon
-description: Assist Dragan and Lalit in scoring ATD Completion Theater participant projects against the published rubric, with source-bound evidence, separate audit credit and human final adjudication.
+description: Assist Dragan in scoring ATD Completion Theater participant projects against the published rubric, with source-bound evidence, separate audit credit and human final adjudication.
 ---
 
 # Score a Completion Theater submission
@@ -13,7 +13,7 @@ Use this skill in the organizer repository. Resolve paths below from its root (t
 - `tools/README.md`: snapshot, verifier and score-file semantics.
 - `docs/08-Submission-Workflow.md`: PR intake, immutable baseline, sidecar evidence and offline fallback.
 
-Ask only for missing team/source identity, PR URL, full frozen commit, app path, organizer intake record, artifact/evidence location, audit assignment or event/rehearsal mode. For the recorded offline fallback, a PR can remain pending. Default to event assistance with provisional recommendations; an AI cannot award final event points. Never name Dragan or Lalit as an adjudicator merely because they invoked this skill.
+Ask only for missing team/source identity, PR URL, full frozen commit, app path, organizer intake record, artifact/evidence location, audit assignment or event/rehearsal mode. For the recorded offline fallback, a PR can remain pending. Default to event assistance with provisional recommendations; an AI cannot award final event points. Never name Dragan as an adjudicator merely because they invoked this skill.
 
 ## Establish the judged baseline
 
@@ -39,6 +39,6 @@ C points belong to the team that PERFORMED the audit. Record that team and its t
 
 ## Human adjudication and handoff
 
-Keep proposed points in `recommendations.md`. `score.json` starts with every row 0/NOT RUN. Only after a named human explicitly decides a row, enter their actual decision, evidence reference and `adjudicatorType: "human"` into the event score. Never relabel AI judgments as human. Unresolved rows remain 0/NOT RUN; document disagreements for Dragan and Lalit without inventing a rule. AI-only trial scoring must use `mode: "rehearsal"` and `adjudicatorType: "ai"` for AI decisions.
+Keep proposed points in `recommendations.md`. `score.json` starts with every row 0/NOT RUN. Only after a named human explicitly decides a row, enter their actual decision, evidence reference and `adjudicatorType: "human"` into the event score. Never relabel AI judgments as human. Unresolved rows remain 0/NOT RUN; document disagreements for Dragan without inventing a rule. AI-only trial scoring must use `mode: "rehearsal"` and `adjudicatorType: "ai"` for AI decisions.
 
 Validate with `python3 tools/score.py <packet>/score.json`. This validates schema/arithmetic, not evidence truth or identity. Present A/B/C/D subtotals, total, source ID, unrun checks, disputes, human decisions still needed and evidence links. For multiple human-approved scores, run the packet helper's `scoreboard` command; tie-break B, then C, then A, and share a remaining tie. Do not change the rubric, announce rewards, publish scores, commit or message participants as part of scoring.

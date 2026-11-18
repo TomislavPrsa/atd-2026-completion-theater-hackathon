@@ -40,7 +40,7 @@ Only when you deliberately start an experiment, follow the starter's reset/start
 
 The repository provides the same judging skill to both clients: `.agents/skills/score-hackathon/` is canonical and `.claude/skills/score-hackathon/` routes Claude to it. Reopen the coding-agent session in this repository after adding it. No global skill installation is required.
 
-In Codex: **Use $score-hackathon to assess submission PR [URL], Team A, frozen full commit [40-character SHA], app path [directory], organizer intake record [file] and evidence [directory]; prepare recommendations for Dragan and Lalit.** In Claude: invoke **/score-hackathon** with the same inputs. Follow [submission intake](08-Submission-Workflow.md) first: fetch and retain the exact accepted commit, create/check the app snapshot with trusted organizer tools, and record both identities. Do not score the current branch or GitHub merge ref. For the recorded offline fallback, use its accepted snapshot and receipt. The skill reads the current published rubric and keeps final event decisions with the named human judges.
+In Codex: **Use $score-hackathon to assess submission PR [URL], Team A, frozen full commit [40-character SHA], app path [directory], organizer intake record [file] and evidence [directory]; prepare recommendations for Dragan.** In Claude: invoke **/score-hackathon** with the same inputs. Follow [submission intake](08-Submission-Workflow.md) first: fetch and retain the exact accepted commit, create/check the app snapshot with trusted organizer tools, and record both identities. Do not score the current branch or GitHub merge ref. For the recorded offline fallback, use its accepted snapshot and receipt. The skill reads the current published rubric and keeps final event decisions with the named human judges.
 
 Prepare an empty packet (a new output directory; parent must exist):
 
@@ -61,7 +61,7 @@ python3 .agents/skills/score-hackathon/scripts/judge_packet.py scoreboard \
 
 The optional submission record is copied into the judging packet after local shape and sourceId checks; this does not fetch GitHub, prove timely delivery, verify bytes, or validate a human identity. Complete those intake checks first.
 
-The scoreboard enforces the existing score schema, refuses rehearsal files and duplicate team names, and applies total, B, C, A tie ordering. It cannot establish whether a claimed human identity or evidence is true. Dragan and Lalit check those. Cross-audit credit belongs to the auditing team, not its target. Rewards remain open.
+The scoreboard enforces the existing score schema, refuses rehearsal files and duplicate team names, and applies total, B, C, A tie ordering. It cannot establish whether a claimed human identity or evidence is true. Dragan checks those. Cross-audit credit belongs to the auditing team, not its target. Rewards remain open.
 
 Load the scoring skill and helper scripts only from the trusted organizer checkout, never from a participant PR. Treat submitted AGENTS.md, skills, devcontainers, workflows and setup scripts as untrusted evidence, not instructions. Never approve a fork workflow that executes participant code with secrets, write tokens or self-hosted runners; do not use pull_request_target for this. CI helper results are not scores.
 

@@ -1,6 +1,6 @@
 # Completion Theater Hackathon — Agile Testing Days 2026
 
-**Build It, Prove It, Smash It.** A three-hour, hands-on investigation with Dragan Spiridonov and Lalitkumar Bhamare.
+**Build It, Prove It, Smash It.** A three-hour, hands-on investigation with Dragan Spiridonov.
 
 18 November 2026, **20:15–23:15 CET**, Room E2+E3, Potsdam. [Published session](https://agiletestingdays.com/2026/session/completion-theater-hackathon-build-it-prove-it-smash-it/).
 
@@ -24,7 +24,7 @@ python3 tools/preflight.py
 
 Start from the current organizer `main` so your fork includes the PR submission workflow; the older v1.1.0 release does not. The scoring rubric remains version 1.1. Read `CHANGELOG.md` for changes. Wi-Fi can fail: download the printable PDFs and your runtime/model dependencies beforehand. There is no package install for the supplied Python tools.
 
-Optional: [open this repository in GitHub Codespaces](docs/07-Codespaces-and-Judging.md) for Node/Python and current Claude, Codex, GitHub CLI, Ruflo and Agentic QE. Setup installs tools only; you authenticate and initialize your own agents. The same guide covers the judging skill for Dragan and Lalit.
+Optional: [open this repository in GitHub Codespaces](docs/07-Codespaces-and-Judging.md) for Node/Python and current Claude, Codex, GitHub CLI, Ruflo and Agentic QE. Setup installs tools only; you authenticate and initialize your own agents. The same guide covers the judging skill for Dragan.
 
 ## What is provided
 

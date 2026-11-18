@@ -83,7 +83,7 @@ def create(name,files):
     for i,f in enumerate(files):
         if i:story.append(PageBreak())
         story+=parse(out/f)
-    doc=SimpleDocTemplate(str(pdfout/name),pagesize=A4,rightMargin=46,leftMargin=46,topMargin=42,bottomMargin=52,title=name[:-4].replace('-',' '),author='Dragan Spiridonov and Lalitkumar Bhamare')
+    doc=SimpleDocTemplate(str(pdfout/name),pagesize=A4,rightMargin=46,leftMargin=46,topMargin=42,bottomMargin=52,title=name[:-4].replace('-',' '),author='Dragan Spiridonov')
     doc.build(story,onFirstPage=footer,onLaterPages=footer)
     PAGE_COUNTS[name] = doc.page
     return pdfout/name

@@ -105,7 +105,7 @@ python3 tools/snapshot.py check ../team-a-retained.zip
 
 The helper requires a full commit SHA available locally and a non-root relative app directory. It reads only that committed tree, applies the published source exclusions and writes a new snapshot. Compare any participant-supplied sourceId/checksum and investigate mismatches. Source ZIP byte hashes can differ between independently produced ZIPs, so content equivalence requires matching verified sourceId; retain the checksum of each actual transferred ZIP. This check does not prove timeliness, code safety or correctness. Retain the local commit ref, snapshot and evidence even if the PR changes or closes. Give auditors the retained artifact and source identity, not a live branch.
 
-Load `$score-hackathon` or `/score-hackathon` from the organizer checkout with the PR URL, intake record, frozen identity and evidence paths. Prepare a zero-point packet with `--submission-record`; proposals stay in recommendations until Dragan/Lalit make actual human decisions. Helper CI is not participant qualification, and the published 40/30/20/10 rubric is unchanged.
+Load `$score-hackathon` or `/score-hackathon` from the organizer checkout with the PR URL, intake record, frozen identity and evidence paths. Prepare a zero-point packet with `--submission-record`; proposals stay in recommendations until Dragan makes actual human decisions. Helper CI is not participant qualification, and the published 40/30/20/10 rubric is unchanged.
 
 ## 5. Safe review and offline fallback
 
