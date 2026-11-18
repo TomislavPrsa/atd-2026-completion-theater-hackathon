@@ -67,6 +67,7 @@ class AC03Reservation(unittest.TestCase):
             self.assertEqual(app.request('GET', '/reservations/' + reservation[0])[1]['status'], 'active')
             self.assertIn('active', alert_text(html))
             self.assertIn(reservation[0], alert_text(html))
+            self.assertNotRegex(html, r'<p id="message"[^>]*message-cancelled')  # active booking is not red
             self.assertEqual(table_rows(html, 'sessions')[1][3:], ['1', '1'])
             self.assertEqual(api['sessions'][0]['remainingSeats'], 1)
 

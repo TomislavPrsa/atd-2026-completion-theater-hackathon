@@ -23,6 +23,7 @@ Interpretations made where the PRD is ambiguous. Change them freely, but update 
 - A-02 (AC-04/08): Status codes: 201 create, 200 replay/read/cancel, 400 invalid input or malformed JSON, 404 unknown session/reservation, 409 capacity full and key conflict. Errors are `{"error":{"code","message"}}`, which matches the contract. Keep `adapter.json` in sync.
 - A-03 (AC-05): The alias is stored trimmed. The replay comparison uses the trimmed alias and is case-sensitive.
 - A-04 (AC-04): Concurrency is handled by doing check-and-insert in one SQLite `BEGIN IMMEDIATE` transaction per request.
+- A-05 (AC-08): `attendeeAlias` is at most 30 characters after trimming; longer is 400 `INVALID_INPUT` ("attendeeAlias must be at most 30 characters"). The UI field has `maxlength="30"`. The cancellation confirmation in the UI is styled red (`message-cancelled`), but it stays `role="status"` because it is not an error.
 
 ## Out of scope / stretch
 - Waitlists, search, accessibility beyond the basic labels/keyboard/visible errors, evidence views (PRD: only after all 8 ACs).

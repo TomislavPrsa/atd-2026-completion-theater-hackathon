@@ -58,6 +58,9 @@ class ApiError(Exception):
         self.status, self.code, self.message = status, code, message
 
 
+MAX_ALIAS_LENGTH = 30  # A-05: counted after trimming
+
+
 def validate_create(body):
     """Edge validation before any DB work. Returns (sessionId, trimmed alias, requestKey)."""
     session_id, alias, key = (body.get(k) for k in ('sessionId', 'attendeeAlias', 'requestKey'))
@@ -65,6 +68,8 @@ def validate_create(body):
         raise ApiError(400, 'INVALID_INPUT', 'sessionId must be a non-empty string')
     if not isinstance(alias, str) or not alias.strip():
         raise ApiError(400, 'INVALID_INPUT', 'attendeeAlias must not be blank')
+    if len(alias.strip()) > MAX_ALIAS_LENGTH:
+        raise ApiError(400, 'INVALID_INPUT', 'attendeeAlias must be at most %d characters' % MAX_ALIAS_LENGTH)
     if not isinstance(key, str) or not key:
         raise ApiError(400, 'INVALID_INPUT', 'requestKey must be a non-empty string')
     return session_id, alias.strip(), key
@@ -163,35 +168,108 @@ def list_reservations():
     return [_reservation(r) for r in rows]
 
 
+# Palette from the organizer's materials (scripts/render_materials.py, event deck). Inspired by
+# Agile Testing Days 2026; no logos or external assets, so the page works fully offline.
+STYLE = '''
+:root{--atd-navy:#080E62;--atd-pink:#C91C53;--ink:#1A2943;--slate:#5A6B85;--surface:#F2F4F8;
+  --rule:#D6DBE4;--sky:#B9C6E4;--pink-light:#FF8FAB;--card:#FFFFFF;
+  --ok-ink:#1E6B3A;--ok-bg:#E8F5EC;--err-ink:#A3123F;--err-bg:#FCE8EE;--muted-bg:#E9EDF3;
+  --radius:.6rem;--shadow:0 1px 2px rgba(8,14,98,.06),0 4px 16px rgba(8,14,98,.07)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--ink);
+  font:1rem/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.masthead{background:var(--atd-navy);color:#fff;border-bottom:4px solid var(--atd-pink)}
+.masthead .inner,main{max-width:60rem;margin:0 auto;padding:0 1rem}
+.masthead .inner{padding-top:1.4rem;padding-bottom:1.3rem;display:flex;align-items:center;gap:.9rem}
+.mark{flex:none;width:2.6rem;height:2.6rem}
+h1{margin:0;font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.15;letter-spacing:-.01em}
+.subtitle{margin:.2rem 0 0;color:var(--sky);font-size:.95rem}
+main{padding-top:1.5rem;padding-bottom:3rem}
+h2{font-size:1.2rem;margin:0 0 .8rem;color:var(--atd-navy);display:flex;align-items:center;gap:.5rem}
+h2::before{content:"";width:.35rem;height:1.1rem;border-radius:.2rem;background:var(--atd-pink)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:1.2rem;margin:0 0 1.5rem}
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;background:var(--card)}
+caption{caption-side:top;text-align:left;color:var(--slate);font-size:.9rem;padding:.55rem .8rem;
+  background:var(--card);border-bottom:1px solid var(--rule)}
+th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--rule);vertical-align:middle}
+th{background:var(--atd-navy);color:#fff;font-weight:600;font-size:.9rem;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr:nth-child(odd) td{background:var(--surface)}
+#sessions td:nth-child(n+3){font-variant-numeric:tabular-nums}
+#sessions td:first-child,#reservations td:nth-child(2){white-space:nowrap}
+#sessions td:last-child{font-weight:700;font-size:1.15rem;color:var(--atd-navy)}
+#sessions tr.full td:last-child{color:var(--atd-pink)}
+#sessions tr.full td:first-child{box-shadow:inset 4px 0 0 var(--atd-pink)}
+#reservations td:first-child,#reservations td:nth-child(4){font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:.82rem;color:var(--slate);word-break:break-all;min-width:9rem}
+.badge{display:inline-block;padding:.1rem .65rem;border-radius:999px;font-size:.85rem;font-weight:600}
+.badge-active{background:var(--ok-bg);color:var(--ok-ink)}
+.badge-cancelled{background:var(--muted-bg);color:var(--slate)}
+form.reserve{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
+form.reserve>div{flex:1 1 14rem;min-width:0}
+label{display:block;font-weight:600;margin-bottom:.3rem;color:var(--atd-navy)}
+input,select{width:100%;max-width:100%;min-width:0;text-overflow:ellipsis;font:inherit;color:var(--ink);background:#fff;padding:.55rem .7rem;
+  border:1px solid var(--slate);border-radius:.4rem}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:.4rem;padding:.55rem 1.3rem;
+  transition:background-color .15s,color .15s,border-color .15s}
+form.reserve button{background:var(--atd-navy);color:#fff;border:2px solid var(--atd-navy);flex:none}
+form.reserve button:hover{background:var(--atd-pink);border-color:var(--atd-pink)}
+td form{margin:0}
+td button{background:#fff;color:var(--atd-pink);border:1.5px solid var(--atd-pink);padding:.3rem .9rem;font-size:.9rem}
+td button:hover{background:var(--atd-pink);color:#fff}
+:focus-visible{outline:3px solid var(--atd-pink);outline-offset:2px}
+#message{margin:0 0 1.5rem;padding:.8rem 1rem;border-radius:var(--radius);font-weight:600;
+  background:var(--ok-bg);color:var(--ok-ink);border:1px solid var(--ok-ink);border-left-width:6px}
+#message[role=alert],#message.message-cancelled{background:var(--err-bg);color:var(--err-ink);border-color:var(--err-ink)}
+#message:empty{display:none}
+.empty{color:var(--slate);margin:.8rem 0 0}
+.muted{color:var(--slate)}
+footer{color:var(--slate);font-size:.85rem;text-align:center;padding:0 1rem 2rem}
+@media (max-width:30rem){.card{padding:1rem}th,td{padding:.5rem .55rem}form.reserve button{width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+'''
+
+# Inline SVG mark (aria-hidden): seat rows in the event palette, no external asset.
+MARK = ('<svg class="mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">'
+        '<rect width="40" height="40" rx="9" fill="#C91C53"/>'
+        '<g fill="#fff"><rect x="8" y="10" width="7" height="7" rx="2"/><rect x="17" y="10" width="7" height="7" rx="2"/>'
+        '<rect x="26" y="10" width="7" height="7" rx="2" opacity=".45"/><rect x="8" y="22" width="7" height="7" rx="2"/>'
+        '<rect x="17" y="22" width="7" height="7" rx="2" opacity=".45"/><rect x="26" y="22" width="7" height="7" rx="2" opacity=".45"/>'
+        '</g></svg>')
+
 PAGE = '''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Session Seat Desk</title>
-<style>body{{font:1.1rem system-ui;max-width:52rem;margin:2rem auto;padding:0 1rem}}
-table{{border-collapse:collapse;width:100%;margin:1rem 0}}th,td{{border:1px solid #ccd;padding:.4rem .6rem;text-align:left}}
-form.reserve{{display:flex;gap:.8rem;flex-wrap:wrap;align-items:end}}label{{display:block;font-weight:600}}
-input,select,button{{font:inherit;padding:.3rem .5rem}}:focus-visible{{outline:3px solid #1a5fd0;outline-offset:2px}}
-#message:empty{{display:none}}#message{{padding:.6rem .8rem;border-radius:.3rem;background:#e7f4ea;border:1px solid #2e7d32}}
-#message[role=alert]{{background:#fdecea;border-color:#c62828}}</style>
-<main><h1>Session Seat Desk</h1>
-<p id="message" role="{message_role}">{message}</p>
-<table id="sessions"><caption>Workshops and remaining seats (live from storage)</caption>
+<style>{style}</style>
+<header class="masthead"><div class="inner">{mark}<div><h1>Session Seat Desk</h1>
+<p class="subtitle">Completion Theater Hackathon &middot; Agile Testing Days 2026</p></div></div></header>
+<main>
+<p id="message" role="{message_role}"{message_class}>{message}</p>
+<section class="card" aria-labelledby="h-sessions"><h2 id="h-sessions">Workshops</h2>
+<div class="table-wrap"><table id="sessions"><caption>Workshops and remaining seats (live from storage)</caption>
 <tr><th scope="col">Session</th><th scope="col">Title</th><th scope="col">Capacity</th>
 <th scope="col">Active</th><th scope="col">Remaining</th></tr>
 {session_rows}
-</table>
-<h2>Reserve a seat</h2>
+</table></div></section>
+<section class="card" aria-labelledby="h-reserve"><h2 id="h-reserve">Reserve a seat</h2>
 <form class="reserve" method="post" action="/ui/reserve">
 <div><label for="session">Session</label><select id="session" name="sessionId">{session_options}</select></div>
-<div><label for="alias">Attendee alias</label><input id="alias" name="attendeeAlias" required autocomplete="off"></div>
+<div><label for="alias">Attendee alias</label><input id="alias" name="attendeeAlias" required maxlength="30" autocomplete="off"></div>
 <input type="hidden" name="requestKey" value="{request_key}">
 <button type="submit">Reserve</button>
-</form>
-<h2>Reservations</h2>
-<table id="reservations"><caption>All reservations (live from storage)</caption>
+</form></section>
+<section class="card" aria-labelledby="h-reservations"><h2 id="h-reservations">Reservations</h2>
+<div class="table-wrap"><table id="reservations"><caption>All reservations (live from storage)</caption>
 <tr><th scope="col">ID</th><th scope="col">Session</th><th scope="col">Alias</th>
 <th scope="col">Request key</th><th scope="col">Status</th><th scope="col">Action</th></tr>
 {reservation_rows}
-</table></main></html>
+</table></div>{empty_note}</section>
+</main>
+<footer>Fictional aliases only &middot; state stored locally in SQLite</footer>
+</html>
 '''
 
 
@@ -204,27 +282,37 @@ def _cancel_cell(r):
                               session=html.escape(r['sessionId']))
 
 
-def render_page(message='', is_error=False):
+def render_page(message='', is_error=False, cancelled=False):
     """Everything shown comes from storage at render time; success text only via confirmed_message()."""
     e = lambda value: html.escape(str(value))  # noqa: E731
     sessions = list_sessions()
-    session_rows = '\n'.join('<tr>%s</tr>' % ''.join('<td>%s</td>' % e(s[k]) for k in (
-        'id', 'title', 'capacity', 'activeCount', 'remainingSeats')) for s in sessions)
+    session_rows = '\n'.join('<tr%s>%s</tr>' % (
+        ' class="full"' if s['remainingSeats'] == 0 else '',
+        ''.join('<td>%s</td>' % e(s[k]) for k in ('id', 'title', 'capacity', 'activeCount', 'remainingSeats')))
+        for s in sessions)
     session_options = ''.join('<option value="{0}">{0} {1} ({2} left)</option>'.format(
         e(s['id']), e(s['title']), e(s['remainingSeats'])) for s in sessions)
-    reservation_rows = '\n'.join('<tr>%s<td>%s</td></tr>' % (''.join('<td>%s</td>' % e(r[k]) for k in (
-        'id', 'sessionId', 'attendeeAlias', 'requestKey', 'status')), _cancel_cell(r)) for r in list_reservations())
-    return PAGE.format(message=e(message), message_role='alert' if is_error else 'status',
+    reservations = list_reservations()
+    reservation_rows = '\n'.join(
+        '<tr>%s<td><span class="badge badge-%s">%s</span></td><td>%s</td></tr>' % (
+            ''.join('<td>%s</td>' % e(r[k]) for k in ('id', 'sessionId', 'attendeeAlias', 'requestKey')),
+            e(r['status']), e(r['status']), _cancel_cell(r))
+        for r in reservations)
+    empty_note = '' if reservations else '<p class="empty">No reservations yet.</p>'
+    return PAGE.format(style=STYLE, mark=MARK, message=e(message),
+                       message_role='alert' if is_error else 'status',
+                       message_class=' class="message-cancelled"' if cancelled and not is_error else '',
                        session_rows=session_rows, session_options=session_options,
-                       request_key=uuid.uuid4().hex, reservation_rows=reservation_rows).encode('utf-8')
+                       request_key=uuid.uuid4().hex, reservation_rows=reservation_rows,
+                       empty_note=empty_note).encode('utf-8')
 
 
 def confirmed_message(reservation_id):
-    """Confirmation text built from the stored row, never from the request (no success theater)."""
+    """(text, stored status) built from the stored row, never from the request (no success theater)."""
     r = get_reservation(reservation_id) if reservation_id else None
     if not r:
-        return ''
-    return 'Reservation %s: %s in %s is %s.' % (r['id'], r['attendeeAlias'], r['sessionId'], r['status'])
+        return '', None
+    return 'Reservation %s: %s in %s is %s.' % (r['id'], r['attendeeAlias'], r['sessionId'], r['status']), r['status']
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -277,7 +365,8 @@ class Handler(BaseHTTPRequestHandler):
             self.json_response(200, {'sessions': list_sessions()})
         elif url.path == '/':
             reservation_id = parse_qs(url.query).get('r', [''])[0]
-            self.html_response(200, render_page(confirmed_message(reservation_id)))
+            text, status = confirmed_message(reservation_id)
+            self.html_response(200, render_page(text, cancelled=(status == 'cancelled')))
         elif url.path.startswith('/reservations/'):
             reservation = get_reservation(url.path[len('/reservations/'):])
             if reservation:

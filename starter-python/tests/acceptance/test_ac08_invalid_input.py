@@ -12,6 +12,7 @@ INVALID_CREATES = {
     'missing request key': {'sessionId': 'CT-101', 'attendeeAlias': 'Ada'},
     'empty request key': {**VALID, 'requestKey': ''},
     'non-string request key': {**VALID, 'requestKey': 42},
+    'alias longer than 30 characters': {**VALID, 'attendeeAlias': 'A' * 31},
     'missing session': {'attendeeAlias': 'Ada', 'requestKey': 'K1'},
 }
 
@@ -59,6 +60,27 @@ class AC08InvalidInput(unittest.TestCase):
             # When I cancel an ID that was never issued
             # Then it is a 4xx with an error and nothing changed
             self.assert_rejected_without_state_change(app, 'POST', '/reservations/no-such-id/cancel', {})
+
+    def test_ac08_alias_of_exactly_30_characters_after_trimming_is_accepted(self):
+        # Given a running app (A-05: alias max 30 characters, counted after trimming)
+        with RunningApp() as app:
+            # When the alias is exactly 30 characters, padded with whitespace
+            alias = 'B' * 30
+            status, body = app.request('POST', '/reservations', {**VALID, 'attendeeAlias': '  %s \t' % alias})
+            # Then it is accepted and stored trimmed
+            self.assertEqual(status, 201, body)
+            self.assertEqual(body['attendeeAlias'], alias)
+            # And 31 characters gives a clear length error
+            status, body = app.request('POST', '/reservations', {**VALID, 'requestKey': 'K2',
+                                                                 'attendeeAlias': 'B' * 31})
+            self.assertEqual(status, 400)
+            self.assertIn('30 characters', body['error']['message'])
+
+    def test_ac08_ui_alias_input_is_limited_to_30_characters(self):
+        # Given the UI
+        with RunningApp() as app:
+            # Then the alias field itself stops typing past 30 characters
+            self.assertIn('maxlength="30"', app.page())
 
     def test_ac08_ui_shows_visible_errors_with_4xx_and_no_state_change(self):
         cases = {

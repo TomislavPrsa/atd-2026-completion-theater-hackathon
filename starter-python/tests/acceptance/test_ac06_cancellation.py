@@ -75,6 +75,8 @@ class AC06Cancellation(unittest.TestCase):
             # Then the page confirms the stored cancelled status and the seat is back, in UI and API
             self.assertEqual(status, 200)
             self.assertIn('cancelled', alert_text(html))
+            self.assertRegex(html, r'<p id="message" role="status" class="message-cancelled"',
+                             'cancellation confirmation must use the red cancelled style')
             self.assertEqual(table_rows(html, 'reservations')[1][4], 'cancelled')
             self.assertEqual(table_rows(html, 'sessions')[1][3:], ['0', '2'])
             self.assertEqual(ct101(app), (0, 2))

@@ -47,7 +47,7 @@ python -c "import sqlite3; print(sqlite3.connect('.state/seats.db').execute('sel
 | `POST /reservations/{id}/cancel` `{}` | 200 the cancelled record (repeat cancels too) | 400 `INVALID_JSON`, 404 `NOT_FOUND` |
 
 - Errors are `{"error":{"code":"…","message":"…"}}` and never come with a 200.
-- Aliases are trimmed before they are stored and compared. Comparison is case-sensitive.
+- Aliases are trimmed before they are stored and compared, and must be 1–30 characters after trimming. Comparison is case-sensitive.
 - Request keys are globally unique.
 - `adapter.json` maps fields one-to-one, uses the `sessions` wrapper and no reservation wrapper, and starts/resets with `["{python}", "app.py"]` / `["{python}", "app.py", "--reset"]`.
 
